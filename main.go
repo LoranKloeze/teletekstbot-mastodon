@@ -4,15 +4,27 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func logStart() {
+	fmt.Println("Starting teletekst bot")
+	if os.Getenv("TELETEKST_ENV") == "production" {
+		fmt.Printf("Mode: %s\n", "production")
+	} else {
+		fmt.Printf("Mode: %s\n", "development")
+	}
+}
+
 func main() {
 	firstPage, lastPage := 104, 150
+	logStart()
 
 	db := InitDb("teletekstbot.db")
 	defer db.Close()
@@ -31,8 +43,12 @@ func main() {
 		}
 
 		log.Printf("--- Constructing a toot for %s --- \n", page.Nr)
-		PersistScreenshot(page)
-		PostToot(page)
+		if os.Getenv("TELETEKST_ENV") == "production" {
+			PersistScreenshot(page)
+			PostToot(page)
+		} else {
+			FakeToot(page)
+		}
 		InsertPage(db, page)
 	}
 
