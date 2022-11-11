@@ -31,3 +31,4 @@ go.work
 deploy.sh
 
 ./bot_*
+.vscode
