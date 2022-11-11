@@ -37,6 +37,8 @@ func constructPage(notification *mastodon.Notification) (page teletekst.Page, ok
 }
 
 func main() {
+	logStart()
+
 	store := teletekst.InitStore()
 	defer store.Close()
 
@@ -64,6 +66,6 @@ func main() {
 			}
 			teletekst.SetLastNotificationId(n.ID)
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(15 * time.Second)
 	}
 }
