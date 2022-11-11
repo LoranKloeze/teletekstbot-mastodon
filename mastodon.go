@@ -25,6 +25,13 @@ func init() {
 	})
 }
 
+// FakeToot logs the toot that would've been posted
+//
+// Mainly here for debugging purposes
+func FakeToot(p Page) {
+	log.Printf(">>> Would've posted a toot for %s with title '%s'... ", p.Nr, p.Title)
+}
+
 func PostToot(p Page) {
 	log.Printf(">>> Posting a toot for %s... ", p.Nr)
 	ctx := context.Background()
