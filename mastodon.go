@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 
 	"github.com/joho/godotenv"
 	"github.com/mattn/go-mastodon"
@@ -47,6 +48,36 @@ func PostToot(p Page) {
 	}
 
 	log.Printf("Done!\n")
+}
+
+func Notifications() {
+	ctx := context.Background()
+	db := InitDb("teletekstbot.db")
+	lastId, _ := LastNotificationId(db)
+	ns, err := cli.GetNotifications(ctx, &mastodon.Pagination{SinceID: lastId})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, n := range ns {
+		if n.Type != "mention" {
+			continue
+		}
+		re := regexp.MustCompile(`Pagina\s(\d{3})`)
+		m := re.FindAllStringSubmatch(n.Status.Content, 1)
+		if len(m) > 0 && len(m[0]) > 0 {
+			p := Page{Nr: m[0][1]}
+			fmt.Printf("Page %s asked\n", p.Nr)
+			// createScreenshot(p)
+			// cropScreenshot(p)
+			// att := uploadScreenshot(ctx, p)
+			text := fmt.Sprintf("@%s Je vroeg om pagina %s, hierbij.", n.Account.Acct, p.Nr)
+			fmt.Println(text)
+			// cli.PostStatus(ctx, &mastodon.Toot{Status: text, Visibility: "unlisted", InReplyToID: n.Status.ID, MediaIDs: []mastodon.ID{att.ID}})
+			InsertNotificationId(db, n.ID)
+		}
+	}
+
 }
 
 func uploadScreenshot(ctx context.Context, p Page) *mastodon.Attachment {
