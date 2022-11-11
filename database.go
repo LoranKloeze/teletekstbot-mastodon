@@ -15,7 +15,7 @@ func InitDb(file string) *sql.DB {
 	}
 
 	sqlStmt := `
-	CREATE TABLE IF NOT EXISTS hashes (nr text unique, hash text);
+	CREATE TABLE IF NOT EXISTS pages (nr text unique, title text);
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -26,22 +26,22 @@ func InitDb(file string) *sql.DB {
 }
 
 func PageExists(db *sql.DB, p Page) bool {
-	var hash string
+	var title string
 
-	stmt, _ := db.Prepare("SELECT hash FROM hashes WHERE nr = ?")
+	stmt, _ := db.Prepare("SELECT title FROM pages WHERE nr = ?")
 	defer stmt.Close()
 
-	err := stmt.QueryRow(p.Nr).Scan(&hash)
+	err := stmt.QueryRow(p.Nr).Scan(&title)
 	if err != nil {
 		return false
 	}
 
-	return hash == p.Hash
+	return title == p.Title
 }
 
 func InsertPage(db *sql.DB, p Page) {
-	stmt, _ := db.Prepare("INSERT OR REPLACE INTO HASHES (nr, hash) values(?, ?)")
+	stmt, _ := db.Prepare("INSERT OR REPLACE INTO pages (nr, title) values(?, ?)")
 	defer stmt.Close()
 
-	stmt.Exec(p.Nr, p.Hash)
+	stmt.Exec(p.Nr, p.Title)
 }

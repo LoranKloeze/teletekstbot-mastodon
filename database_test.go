@@ -34,9 +34,9 @@ func TestInsertPage(t *testing.T) {
 	db := InitDb(tmpDir + databaseFile)
 	defer db.Close()
 
-	InsertPage(db, Page{"content", "199", "h1", ""})
+	InsertPage(db, Page{"content", "199", "h1", "awesometitle"})
 
-	stmt, _ := db.Prepare("SELECT hash FROM hashes WHERE nr = ?")
+	stmt, _ := db.Prepare("SELECT title FROM pages WHERE nr = ?")
 	defer stmt.Close()
 
 	var val string
@@ -46,7 +46,7 @@ func TestInsertPage(t *testing.T) {
 		t.Errorf("Got error searching page: %s", err)
 	}
 
-	if val != "h1" {
+	if val != "awesometitle" {
 		t.Errorf("Expected page hash h1, got %s", val)
 	}
 	fmt.Println(val)
@@ -57,12 +57,12 @@ func TestPageExists(t *testing.T) {
 	db := InitDb(tmpDir + databaseFile)
 	defer db.Close()
 
-	stmt, _ := db.Prepare("INSERT OR REPLACE INTO HASHES (nr, hash) values(?, ?)")
+	stmt, _ := db.Prepare("INSERT OR REPLACE INTO pages (nr, title) values(?, ?)")
 	defer stmt.Close()
 
-	stmt.Exec("150", "h10")
+	stmt.Exec("150", "mytitle")
 
-	page := Page{"content", "150", "h10", ""}
+	page := Page{"content", "150", "h10", "mytitle"}
 	if !PageExists(db, page) {
 		t.Errorf("Expected page to exist: %s", page)
 	}
