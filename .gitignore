@@ -29,3 +29,5 @@ go.work
 /tmp/*
 !/tmp/.keep
 deploy.sh
+
+./bot_*
