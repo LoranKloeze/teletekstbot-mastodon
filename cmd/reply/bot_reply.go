@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/mattn/go-mastodon"
@@ -30,7 +31,7 @@ func constructPage(notification *mastodon.Notification) (page teletekst.Page, ok
 	if err != nil {
 		return teletekst.Page{}, false
 	}
-	return teletekst.Page{Nr: pageNr}, false
+	return teletekst.Page{Nr: pageNr}, true
 }
 
 func main() {
@@ -61,7 +62,20 @@ func main() {
 			} else {
 				teletekst.FakeReplyToot(p, n)
 			}
-			teletekst.SetLastNotificationId(n.ID)
+			currentId, err := strconv.Atoi(string(n.ID))
+			if err != nil {
+				log.Fatal("notification ID should always be convertable to integer")
+			}
+
+			lastId, err := strconv.Atoi(string(teletekst.LastNotificationId()))
+			if err != nil {
+				teletekst.SetLastNotificationId(n.ID)
+			}
+
+			if currentId > lastId {
+				teletekst.SetLastNotificationId(n.ID)
+			}
+
 		}
 		time.Sleep(15 * time.Second)
 	}
