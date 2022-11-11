@@ -14,7 +14,7 @@ import (
 )
 
 func logStart() {
-	fmt.Println("Starting teletekst bot")
+	fmt.Println("Starting teletekst bot for 101's")
 	if os.Getenv("TELETEKST_ENV") == "production" {
 		fmt.Printf("Mode: %s\n", "production")
 	} else {
@@ -28,6 +28,8 @@ func main() {
 
 	store := teletekst.InitStore()
 	defer store.Close()
+
+	teletekst.InitMastodon()
 
 	for i := firstPage; i < lastPage+1; i++ {
 
@@ -44,10 +46,10 @@ func main() {
 
 		log.Printf("--- Constructing a toot for %s --- \n", page.Nr)
 		if os.Getenv("TELETEKST_ENV") == "production" {
-			teletekst.PersistScreenshot(page)
-			teletekst.PostToot(page)
+			teletekst.PersistScreenshot101(page)
+			teletekst.Post101Toot(page)
 		} else {
-			teletekst.FakeToot(page)
+			teletekst.Fake101Toot(page)
 		}
 		teletekst.InsertPage(store, page)
 	}

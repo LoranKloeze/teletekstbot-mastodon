@@ -5,6 +5,7 @@ package teletekst
 
 import (
 	"context"
+	"fmt"
 	"image"
 	"image/png"
 	"log"
@@ -17,15 +18,23 @@ import (
 	"github.com/oliamb/cutter"
 )
 
-func PersistScreenshot(p Page) {
-	log.Printf(">>> Persisting a screenshot for %s... ", p.Nr)
-	createScreenshot(p)
-	cropScreenshot(p)
+func PersistScreenshot101(p Page) {
+	log.Printf(">>> Persisting a 101 screenshot for %s... ", p.Nr)
+	createScreenshot(p, "101")
+	cropScreenshot(p, "101")
 	log.Printf("Done!\n")
 }
 
-func cropScreenshot(p Page) {
-	img, err := getImageFromFilePath("/tmp/gowitness/screenshots/" + p.Nr + ".png")
+func PersistScreenshotReply(p Page) {
+	log.Printf(">>> Persisting a reply screenshot for %s... ", p.Nr)
+	createScreenshot(p, "reply")
+	cropScreenshot(p, "reply")
+	log.Printf("Done!\n")
+}
+
+func cropScreenshot(p Page, prefix string) {
+	path := fmt.Sprintf("/tmp/gowitness/screenshots/%s_%s.png", prefix, p.Nr)
+	img, err := getImageFromFilePath(path)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +47,8 @@ func cropScreenshot(p Page) {
 		panic(err)
 	}
 
-	f, err := os.Create("/tmp/gowitness/screenshots/" + p.Nr + "_cropped.png")
+	croppedPath := fmt.Sprintf("/tmp/gowitness/screenshots/%s_%s_cropped.png", prefix, p.Nr)
+	f, err := os.Create(croppedPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,7 +74,7 @@ func getImageFromFilePath(filePath string) (image.Image, error) {
 	return image, err
 }
 
-func createScreenshot(p Page) {
+func createScreenshot(p Page, prefix string) {
 	ctx := context.Background()
 
 	cli, err := client.NewClientWithOpts()
@@ -72,7 +82,7 @@ func createScreenshot(p Page) {
 		panic(err)
 	}
 
-	resp := createContainer(ctx, cli, p)
+	resp := createContainer(ctx, cli, p, prefix)
 
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		panic(err)
@@ -93,11 +103,12 @@ func waitforContainer(ctx context.Context, cli *client.Client, id string) {
 
 }
 
-func createContainer(ctx context.Context, cli *client.Client, p Page) container.ContainerCreateCreatedBody {
+func createContainer(ctx context.Context, cli *client.Client, p Page, prefix string) container.ContainerCreateCreatedBody {
 	os.MkdirAll("/tmp/gowitness/screenshots", 0755)
+	outputFile := fmt.Sprintf("%s_%s", prefix, p.Nr)
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: "leonjza/gowitness",
-		Cmd:   []string{"gowitness", "single", "https://nos.nl/teletekst#" + p.Nr, "--delay", "1", "-o", p.Nr},
+		Cmd:   []string{"gowitness", "single", "https://nos.nl/teletekst#" + p.Nr, "--delay", "1", "-o", outputFile},
 		Tty:   false,
 	}, &container.HostConfig{Mounts: []mount.Mount{
 		{
