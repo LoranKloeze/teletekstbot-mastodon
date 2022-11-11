@@ -33,3 +33,23 @@ func TestDownloadPage(t *testing.T) {
 		t.Errorf("Expected '110' as page number, got %s", value.Nr)
 	}
 }
+
+func TestConstructPageNr(t *testing.T) {
+	tests := [][]string{
+		{"@fewuihf Pagina 200", "200"},
+		{"@fewuihf Pagina 404-1", "404-1"},
+		{"@fewuihf Pagina 301", "301"},
+		{"@fewuihf Pagina 501-22", "501-22"},
+	}
+
+	for _, c := range tests {
+		nr, err := ConstructPageNr(c[0])
+		if err != nil {
+			t.Errorf("unexpected error: %s", err)
+		}
+		if nr != c[1] {
+			t.Errorf("Expected '%s' to return page %s but got %s", c[0], c[1], nr)
+		}
+	}
+
+}

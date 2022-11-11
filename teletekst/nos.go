@@ -39,6 +39,27 @@ func DownloadPage(pageNr string, server string) (p Page) {
 	return
 }
 
+func ConstructPageNr(content string) (string, error) {
+	var re *regexp.Regexp
+	var m [][]string
+
+	// Check for xxx-xx like queries
+	re = regexp.MustCompile(`(?i)pagina\s(\d{3}-\d{1,2})`)
+	m = re.FindAllStringSubmatch(content, 1)
+	if len(m) > 0 {
+		return m[0][1], nil
+	}
+
+	// Check for xxx like queries
+	re = regexp.MustCompile(`(?i)pagina\s(\d{3})`)
+	m = re.FindAllStringSubmatch(content, 1)
+	if len(m) > 0 {
+		return m[0][1], nil
+	}
+
+	return "", nil
+}
+
 func extractTitle(p Page) string {
 	re := regexp.MustCompile(`<span class=\"yellow bg-blue doubleHeight \">(.+?)</span>`)
 	res := re.FindAllStringSubmatch(p.Content, -1)

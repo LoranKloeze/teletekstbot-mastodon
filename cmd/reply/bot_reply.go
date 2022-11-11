@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/mattn/go-mastodon"
@@ -23,32 +22,11 @@ func logStart() {
 	}
 }
 
-func pageNumber(content string) (string, error) {
-	var re *regexp.Regexp
-	var m [][]string
-
-	// Check for xxx-xx like queries
-	re = regexp.MustCompile(`(?i)pagina\s(\d{3}-\d{1,2})`)
-	m = re.FindAllStringSubmatch(content, 1)
-	if len(m) > 0 {
-		return m[0][1], nil
-	}
-
-	// Check for xxx like queries
-	re = regexp.MustCompile(`(?i)pagina\s(\d{3})`)
-	m = re.FindAllStringSubmatch(content, 1)
-	if len(m) > 0 {
-		return m[0][1], nil
-	}
-
-	return "", nil
-}
-
 func constructPage(notification *mastodon.Notification) (page teletekst.Page, ok bool) {
 	if notification.Type != "mention" {
 		return teletekst.Page{}, false
 	}
-	pageNr, err := pageNumber(notification.Status.Content)
+	pageNr, err := teletekst.ConstructPageNr(notification.Status.Content)
 	if err != nil {
 		return teletekst.Page{}, false
 	}
