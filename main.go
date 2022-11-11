@@ -21,5 +21,6 @@ func logStart() {
 
 func main() {
 	logStart()
+	InitStore()
 	Notifications()
 }

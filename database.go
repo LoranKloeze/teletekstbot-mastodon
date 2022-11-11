@@ -5,10 +5,7 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 	"log"
-
-	"github.com/mattn/go-mastodon"
 )
 
 func InitDb(file string) *sql.DB {
@@ -59,25 +56,4 @@ func InsertPage(db *sql.DB, p Page) {
 	defer stmt.Close()
 
 	stmt.Exec(p.Nr, p.Title)
-}
-
-func LastNotificationId(db *sql.DB) (mastodon.ID, error) {
-	var id mastodon.ID
-
-	stmt, _ := db.Prepare("SELECT value FROM key_vals WHERE key = 'last_notification_id'")
-	defer stmt.Close()
-
-	err := stmt.QueryRow().Scan(&id)
-	if err != nil {
-		return "", errors.New("notification ID not found")
-	}
-
-	return id, nil
-}
-
-func InsertNotificationId(db *sql.DB, id mastodon.ID) {
-	stmt, _ := db.Prepare("INSERT OR REPLACE INTO key_vals (key, value) values(?, ?)")
-	defer stmt.Close()
-
-	stmt.Exec("last_notification_id", id)
 }
