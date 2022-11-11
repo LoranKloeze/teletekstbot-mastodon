@@ -7,7 +7,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/joho/godotenv v1.4.0
 	github.com/mattn/go-mastodon v0.0.5
-	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/oliamb/cutter v0.2.2
 )
 

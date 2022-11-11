@@ -1,7 +1,7 @@
 // Copyright 2022 Codedivision - Loran Kloeze. All rights reserved.
 // Use of this source code is governed by the MIT-license.
 
-package main
+package teletekst
 
 import (
 	"testing"
