@@ -27,7 +27,7 @@ func constructPage(notification *mastodon.Notification) (page teletekst.Page, ok
 	if notification.Type != "mention" {
 		return teletekst.Page{}, false
 	}
-	re := regexp.MustCompile(`Pagina\s(\d{3})`)
+	re := regexp.MustCompile(`(?i)pagina\s(\d{3})`)
 	m := re.FindAllStringSubmatch(notification.Status.Content, 1)
 	if len(m) > 0 && len(m[0]) > 0 {
 		return teletekst.Page{Nr: m[0][1]}, true
