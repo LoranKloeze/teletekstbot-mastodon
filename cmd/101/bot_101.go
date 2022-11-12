@@ -26,7 +26,7 @@ func main() {
 	firstPage, lastPage := 104, 150
 	logStart()
 
-	store := teletekst.InitStore()
+	store := teletekst.InitStore("teletekst")
 	defer store.Close()
 
 	teletekst.InitMastodon()
@@ -39,7 +39,7 @@ func main() {
 		page := teletekst.DownloadPage(strconv.Itoa(i), "https://teletekst-data.nos.nl")
 
 		// The content of a page is empty if NOS told us there is no page
-		if page.Content == "" || teletekst.PageExists(store, page) {
+		if page.Content == "" || teletekst.PageExists(page) {
 			log.Printf("Skipping %s\n", page.Nr)
 			continue
 		}
@@ -51,7 +51,7 @@ func main() {
 		} else {
 			teletekst.Fake101Toot(page)
 		}
-		teletekst.InsertPage(store, page)
+		teletekst.InsertPage(page)
 	}
 
 }

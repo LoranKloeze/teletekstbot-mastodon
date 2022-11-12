@@ -37,7 +37,7 @@ func constructPage(notification *mastodon.Notification) (page teletekst.Page, ok
 func main() {
 	logStart()
 
-	store := teletekst.InitStore()
+	store := teletekst.InitStore("teletekst")
 	defer store.Close()
 
 	teletekst.InitMastodon()
