@@ -10,8 +10,10 @@ import (
 )
 
 var redisCli *redis.Client
+var redisNamespace string
 
-func InitStore() *redis.Client {
+func InitStore(namespace string) *redis.Client {
+	redisNamespace = namespace
 	redisCli = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -20,8 +22,27 @@ func InitStore() *redis.Client {
 	return redisCli
 }
 
+func ClearStore() {
+	cursor := uint64(0)
+	for {
+		keys, cursor, err := redisCli.Scan(context.Background(), cursor, redisNamespace+"*", 0).Result()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, key := range keys {
+			redisCli.Del(context.Background(), key)
+		}
+		if cursor == 0 {
+			break
+		}
+	}
+
+}
+
 func LastNotificationId() mastodon.ID {
-	id, err := redisCli.Get(context.Background(), "teletekst:last_notification_id").Result()
+	key := fmt.Sprintf("%s:last_notification_id", redisNamespace)
+	id, err := redisCli.Get(context.Background(), key).Result()
 	if err != nil {
 		id = ""
 	}
@@ -29,15 +50,16 @@ func LastNotificationId() mastodon.ID {
 }
 
 func SetLastNotificationId(id mastodon.ID) {
-	err := redisCli.Set(context.Background(), "teletekst:last_notification_id", string(id), 0).Err()
+	key := fmt.Sprintf("%s:last_notification_id", redisNamespace)
+	err := redisCli.Set(context.Background(), key, string(id), 0).Err()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func PageExists(store *redis.Client, p Page) bool {
+func PageExists(p Page) bool {
 	var title string
-	key := fmt.Sprintf("teletekst:pages:%s:title", p.Nr)
+	key := fmt.Sprintf("%s:pages:%s:title", redisNamespace, p.Nr)
 	title, err := redisCli.Get(context.Background(), key).Result()
 	if err != nil {
 		title = ""
@@ -46,8 +68,8 @@ func PageExists(store *redis.Client, p Page) bool {
 	return title == p.Title
 }
 
-func InsertPage(store *redis.Client, p Page) {
-	key := fmt.Sprintf("teletekst:pages:%s:title", p.Nr)
+func InsertPage(p Page) {
+	key := fmt.Sprintf("%s:pages:%s:title", redisNamespace, p.Nr)
 	err := redisCli.Set(context.Background(), key, p.Title, 0).Err()
 	if err != nil {
 		log.Fatal(err)
