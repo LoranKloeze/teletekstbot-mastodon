@@ -11,5 +11,7 @@ There are actually two bots: a 101 bot and a reply bot. The 101 bot fetches page
 The 101 bot: `go run cmd/101/bot_101.go`
 The reply bot: `go run cmd/reply/bot_reply.go`
 
+<a rel="me" href="https://mastodon.nl/@teletekstbot">Mastodon</a>
+
 
 
