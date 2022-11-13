@@ -5,6 +5,7 @@ package teletekst
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"net/http"
@@ -57,7 +58,7 @@ func ConstructPageNr(content string) (string, error) {
 		return m[0][1], nil
 	}
 
-	return "", nil
+	return "", errors.New("could not find a page number in content")
 }
 
 func extractTitle(p Page) string {
