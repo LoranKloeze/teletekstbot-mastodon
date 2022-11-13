@@ -64,7 +64,7 @@ func PostReplyToot(p Page, n *mastodon.Notification) {
 	att := uploadScreenshot(ctx, p, "reply")
 
 	text := fmt.Sprintf("@%s Je vroeg om pagina %s, hierbij.", n.Account.Acct, p.Nr)
-	_, err := cli.PostStatus(ctx, &mastodon.Toot{Status: text, Visibility: "direct", InReplyToID: n.Status.ID, MediaIDs: []mastodon.ID{att.ID}})
+	_, err := cli.PostStatus(ctx, &mastodon.Toot{Status: text, Visibility: "unlisted", InReplyToID: n.Status.ID, MediaIDs: []mastodon.ID{att.ID}})
 	if err != nil {
 		log.Fatal(err)
 	}
