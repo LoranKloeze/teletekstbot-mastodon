@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -106,9 +107,10 @@ func waitforContainer(ctx context.Context, cli *client.Client, id string) {
 func createContainer(ctx context.Context, cli *client.Client, p Page, prefix string) container.ContainerCreateCreatedBody {
 	os.MkdirAll("/tmp/gowitness/screenshots", 0755)
 	outputFile := fmt.Sprintf("%s_%s", prefix, p.Nr)
+	url := fmt.Sprintf("https://nos.nl/teletekst#%s?t=%d", p.Nr, time.Now().UnixNano())
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: "leonjza/gowitness",
-		Cmd:   []string{"gowitness", "single", "https://nos.nl/teletekst#" + p.Nr, "--delay", "1", "-o", outputFile},
+		Cmd:   []string{"gowitness", "single", url, "--delay", "1", "-o", outputFile},
 		Tty:   false,
 	}, &container.HostConfig{Mounts: []mount.Mount{
 		{
