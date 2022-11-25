@@ -23,9 +23,11 @@ func InitStore(namespace string) *redis.Client {
 }
 
 func ClearStore() {
-	cursor := uint64(0)
+	var cursor uint64
+	var err error
+	var keys []string
 	for {
-		keys, cursor, err := redisCli.Scan(context.Background(), cursor, redisNamespace+"*", 0).Result()
+		keys, cursor, err = redisCli.Scan(context.Background(), cursor, redisNamespace+"*", 0).Result()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -57,7 +59,7 @@ func SetLastNotificationId(id mastodon.ID) {
 	}
 }
 
-func PageExists(p Page) bool {
+func PageExistsInDb(p Page) bool {
 	var title string
 	key := fmt.Sprintf("%s:pages:%s:title", redisNamespace, p.Nr)
 	title, err := redisCli.Get(context.Background(), key).Result()
