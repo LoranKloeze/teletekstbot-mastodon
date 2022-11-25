@@ -36,10 +36,9 @@ func main() {
 		// Let's not overflow the NOS servers
 		time.Sleep(500 * time.Millisecond)
 
-		page := teletekst.DownloadPage(strconv.Itoa(i), "https://teletekst-data.nos.nl")
+		page, err := teletekst.DownloadPage(strconv.Itoa(i), "https://teletekst-data.nos.nl")
 
-		// The content of a page is empty if NOS told us there is no page
-		if page.Content == "" || teletekst.PageExists(page) {
+		if err != nil || teletekst.PageExistsInDb(page) {
 			log.Printf("Skipping %s\n", page.Nr)
 			continue
 		}

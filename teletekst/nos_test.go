@@ -25,13 +25,27 @@ func TestDownloadPage(t *testing.T) {
 	}))
 	defer server.Close()
 
-	value := DownloadPage("110", server.URL)
+	value, err := DownloadPage("110", server.URL)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 	if value.Content != "sample_content" {
 		t.Errorf("Expected 'sample_content' as page content, got %s", value.Content)
 	}
 	if value.Nr != "110" {
 		t.Errorf("Expected '110' as page number, got %s", value.Nr)
 	}
+}
+
+func TestDownloadNonExistPage(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	_, err := DownloadPage("888", server.URL)
+	if err == nil {
+		t.Errorf("Expected downloading a non-existing page to yield a 404 status")
+	}
+
 }
 
 func TestConstructPageNr(t *testing.T) {

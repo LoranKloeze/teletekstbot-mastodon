@@ -25,7 +25,7 @@ type Page struct {
 // using the provided server e.g. https://teletekst-data.nos.nl
 //
 // It prevents server side caching by using a timestamp in the query
-func DownloadPage(pageNr string, server string) (p Page) {
+func DownloadPage(pageNr string, server string) (p Page, err error) {
 	p.Nr = pageNr
 	u := fmt.Sprintf("%s/json/%s?t=%d", server, pageNr, time.Now().UnixNano())
 	r, err := http.Get(u)
@@ -33,11 +33,14 @@ func DownloadPage(pageNr string, server string) (p Page) {
 		fmt.Fprintf(os.Stderr, "Could not download teletekst page: %s", err)
 	}
 	defer r.Body.Close()
+	if r.StatusCode == http.StatusNotFound {
+		return Page{}, fmt.Errorf("page %s not found at NOS", pageNr)
+	}
 
 	json.NewDecoder(r.Body).Decode(&p)
 	p.Hash = MD5Hash(p.Content)
 	p.Title = extractTitle(p)
-	return
+	return p, nil
 }
 
 func ConstructPageNr(content string) (string, error) {
@@ -59,6 +62,11 @@ func ConstructPageNr(content string) (string, error) {
 	}
 
 	return "", errors.New("could not find a page number in content")
+}
+
+func NOSHasPage(nr string) bool {
+	_, err := DownloadPage(nr, "https://teletekst-data.nos.nl")
+	return err == nil
 }
 
 func extractTitle(p Page) string {

@@ -62,7 +62,7 @@ func TestPageExists(t *testing.T) {
 	key := "teletekst_test:pages:200:title"
 	redisCli.Set(context.Background(), key, "aTitle", 0).Err()
 
-	if !PageExists(Page{Nr: "200", Title: "aTitle"}) {
+	if !PageExistsInDb(Page{Nr: "200", Title: "aTitle"}) {
 		t.Errorf("Expected page 200 to exist")
 	}
 

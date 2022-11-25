@@ -56,6 +56,17 @@ func Post101Toot(p Page) {
 	log.Printf("Done!\n")
 }
 
+func Post404ReplyToot(p Page, n *mastodon.Notification) {
+	log.Printf(">>> Posting a 404 toot for %s... ", p.Nr)
+	ctx := context.Background()
+
+	text := fmt.Sprintf("@%s Je vroeg om pagina %s maar die kon ik niet vinden...", n.Account.Acct, p.Nr)
+	_, err := cli.PostStatus(ctx, &mastodon.Toot{Status: text, Visibility: "unlisted", InReplyToID: n.Status.ID})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func PostReplyToot(p Page, n *mastodon.Notification) {
 	log.Printf(">>> Posting a reply toot for %s... ", p.Nr)
 	ctx := context.Background()

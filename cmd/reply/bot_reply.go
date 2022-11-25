@@ -55,25 +55,27 @@ func main() {
 				continue
 			}
 
-			fmt.Printf("Page %s asked by %s\n", p.Nr, n.Account.Acct)
-			if os.Getenv("TELETEKST_ENV") == "production" {
-				teletekst.PersistScreenshotReply(p)
-				teletekst.PostReplyToot(p, n)
-			} else {
-				teletekst.FakeReplyToot(p, n)
-			}
 			currentId, err := strconv.Atoi(string(n.ID))
 			if err != nil {
 				log.Fatal("notification ID should always be convertable to integer")
 			}
 
 			lastId, err := strconv.Atoi(string(teletekst.LastNotificationId()))
-			if err != nil {
+			if err != nil || currentId > lastId {
 				teletekst.SetLastNotificationId(n.ID)
 			}
 
-			if currentId > lastId {
-				teletekst.SetLastNotificationId(n.ID)
+			fmt.Printf("Page %s asked by %s\n", p.Nr, n.Account.Acct)
+			if !teletekst.NOSHasPage(p.Nr) {
+				teletekst.Post404ReplyToot(p, n)
+				continue
+			}
+
+			if os.Getenv("TELETEKST_ENV") == "production" {
+				teletekst.PersistScreenshotReply(p)
+				teletekst.PostReplyToot(p, n)
+			} else {
+				teletekst.FakeReplyToot(p, n)
 			}
 
 		}
