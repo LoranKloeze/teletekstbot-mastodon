@@ -4,13 +4,16 @@
 package teletekst
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/mattn/go-mastodon"
+	"golang.org/x/net/html"
 )
 
 var cli *mastodon.Client
@@ -101,8 +104,9 @@ func uploadScreenshot(ctx context.Context, p Page, prefix string) *mastodon.Atta
 	defer f.Close()
 
 	media := mastodon.Media{
-		File:  f,
-		Focus: "0.0,1,0",
+		File:        f,
+		Focus:       "0.0,1,0",
+		Description: nosHtmlToText(p),
 	}
 	att, err := cli.UploadMediaFromMedia(ctx, &media)
 
@@ -111,4 +115,33 @@ func uploadScreenshot(ctx context.Context, p Page, prefix string) *mastodon.Atta
 	}
 
 	return att
+}
+
+func nosHtmlToText(p Page) string {
+	var bld strings.Builder
+	b := bytes.NewBufferString(p.Content)
+
+	doc, err := html.Parse(b)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var rowCnt int
+	var fn func(*html.Node)
+	fn = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "span" {
+			txt := n.FirstChild.Data
+			if rowCnt > 4 && !strings.HasPrefix(txt, "") && txt != "a" {
+				bld.WriteString(txt)
+				bld.WriteString("\n")
+			}
+			rowCnt++
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			fn(c)
+		}
+	}
+	fn(doc)
+
+	return bld.String()
 }
