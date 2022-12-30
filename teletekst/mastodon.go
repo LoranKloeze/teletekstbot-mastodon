@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"regexp"
 
 	"github.com/joho/godotenv"
 	"github.com/mattn/go-mastodon"
@@ -127,12 +128,13 @@ func nosHtmlToText(p Page) string {
 	}
 
 	var rowCnt int
+  var re = regexp.MustCompile(`(.)([.,])([^\d ])`)
 	var fn func(*html.Node)
 	fn = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "span" {
 			txt := n.FirstChild.Data
 			if rowCnt > 4 && !strings.HasPrefix(txt, "") && txt != "a" {
-				bld.WriteString(txt)
+				bld.WriteString(re.ReplaceAllString(txt, "${1}${2} ${3}"))
 				bld.WriteString("\n")
 			}
 			rowCnt++
