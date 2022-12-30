@@ -128,7 +128,7 @@ func nosHtmlToText(p Page) string {
 	}
 
 	var rowCnt int
-  var re = regexp.MustCompile(`(.)([.,])([^\d ])`)
+  var re = regexp.MustCompile(`(.)([.,:])([^\d ])`)
 	var fn func(*html.Node)
 	fn = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "span" {
