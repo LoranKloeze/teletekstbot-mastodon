@@ -1,3 +1,7 @@
+# Warning: this code isn't used for the Teletekstbot anymore
+It's been replaced by https://github.com/LoranKloeze/teletekstbot-net
+
+
 # Teletekstbot
 There are actually two bots: a 101 bot and a reply bot. The 101 bot fetches pages 104 til 150, checks for each page if it is updated and then posts a toot with a screenshot of the page. The reply bot checks if the bot is mentioned with a request like 'Pagina 101' and then replies with a screenshot of that page.
 
