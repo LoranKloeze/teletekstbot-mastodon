@@ -39,7 +39,10 @@ func DownloadPage(pageNr string, server string) (p Page, err error) {
 
 	json.NewDecoder(r.Body).Decode(&p)
 	p.Hash = MD5Hash(p.Content)
-	p.Title = extractTitle(p)
+	p.Title, err = extractTitle(p)
+	if err != nil {
+		return p, err
+	}
 	return p, nil
 }
 
@@ -69,14 +72,14 @@ func NOSHasPage(nr string) bool {
 	return err == nil
 }
 
-func extractTitle(p Page) string {
+func extractTitle(p Page) (string, error) {
 	re := regexp.MustCompile(`<span class=\"yellow bg-blue doubleHeight \">(.+?)</span>`)
 	res := re.FindAllStringSubmatch(p.Content, -1)
 	if len(res) == 0 || len(res[0]) == 0 {
-		return "Onbekende titel"
+		return "", errors.New("could not extract a title from html")
 	}
 
-	return html.UnescapeString(removeTags(res[0][1]))
+	return html.UnescapeString(removeTags(res[0][1])), nil
 }
 
 func removeTags(s string) string {

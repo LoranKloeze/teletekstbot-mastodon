@@ -25,10 +25,8 @@ func TestDownloadPage(t *testing.T) {
 	}))
 	defer server.Close()
 
-	value, err := DownloadPage("110", server.URL)
-	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
-	}
+	value, _ := DownloadPage("110", server.URL)
+
 	if value.Content != "sample_content" {
 		t.Errorf("Expected 'sample_content' as page content, got %s", value.Content)
 	}

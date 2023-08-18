@@ -47,6 +47,7 @@ func main() {
 		if os.Getenv("TELETEKST_ENV") == "production" {
 			teletekst.PersistScreenshot101(page)
 			teletekst.Post101Toot(page)
+			teletekst.Post101Bluesky(page)
 		} else {
 			teletekst.Fake101Toot(page)
 		}
